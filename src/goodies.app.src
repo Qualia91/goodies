@@ -1,0 +1,17 @@
+{application, goodies,
+ [
+  {description, "Goodies for erlang"},
+  {vsn, "0.0.1"},
+  {modules, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  crypto,
+                  public_key,
+                  ssl,
+                  inets
+                 ]},
+  {registered, []},
+  {licenses, ["MIT"]},
+  {links, [{"Github", "https://github.com/qualia91/goodies"}]}
+ ]}.
