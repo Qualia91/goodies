@@ -14,7 +14,7 @@
     foldli/2,
     acc/2,
     find_repeating/2,
-    foldx/3,
+    foldlx/3,
     forx/2
 ]).
 
@@ -63,17 +63,17 @@ find_repeating(ListA, [NextList | Rest]) ->
             ListA),
         Rest).
 
-foldx(F, Accu, List) when is_function(F, 2) ->
+foldlx(F, Accu, List) when is_function(F, 2) ->
     case List of
-        [Hd | Tail] -> foldx_1(F, F(Hd, Accu), Tail);
+        [Hd | Tail] -> foldlx_1(F, F(Hd, Accu), Tail);
         [] -> Accu
     end.
 
-foldx_1(_, {exit, Value}, _) ->
+foldlx_1(_, {exit, Value}, _) ->
     Value;
-foldx_1(F, Accu, [Hd | Tail]) ->
-    foldx_1(F, F(Hd, Accu), Tail);
-foldx_1(_F, Accu, []) ->
+foldlx_1(F, Accu, [Hd | Tail]) ->
+    foldlx_1(F, F(Hd, Accu), Tail);
+foldlx_1(_F, Accu, []) ->
     Accu.
 
 forx(F, [Hd | Tail]) ->
