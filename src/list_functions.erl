@@ -15,7 +15,8 @@
     acc/2,
     find_repeating/2,
     foldlx/3,
-    forx/2
+    forx/2,
+    group_list/2
 ]).
 
 fori(F, List) when is_function(F, 2), is_list(List) ->
@@ -83,6 +84,15 @@ forx(F, [Hd | Tail]) ->
     end;
 forx(_F, []) ->
     ok.
+
+group_list(Date, DateUpdateFun) ->
+    lists:foldl(
+        fun({GroupBy, Datum}, Acc) ->
+            Prev = maps:get(GroupBy, Acc, []),
+            Acc#{GroupBy => [DateUpdateFun(Datum) | Prev]}
+        end,
+        #{},
+        Date).
 
 %%%=============================================================================
 %%% Eunit Tests

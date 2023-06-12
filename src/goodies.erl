@@ -19,7 +19,8 @@
     acc/2,
     find_repeating/2,
     foldlx/3,
-    forx/2
+    forx/2,
+    group_list/2
 ]).
 
 %% File Functions
@@ -68,6 +69,10 @@ foldlx(F, Accu, List)
 forx(F, List)
         when is_function(F, 1), is_list(List) ->
     list_functions:forx(F, List).
+
+group_list(List, F)
+        when is_function(F, 1), is_list(List) ->
+    list_functions:group_list(List, F).
 
 %%%=============================================================================
 %%% File Functions
