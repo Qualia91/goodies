@@ -45,6 +45,13 @@
     dir/1
 ]).
 
+%% Map Functions
+-export([
+    maps_get_lazy/3,
+    maps_fallthrough_get/3,
+    maps_fallthrough_get/2
+]).
+
 %%%=============================================================================
 %%% List Functions
 %%%=============================================================================
@@ -116,3 +123,16 @@ sub(X, Y) ->
 
 dir(X) ->
     math_functions:dir(X).
+
+%%%=============================================================================
+%%% Map Functions
+%%%=============================================================================
+
+maps_get_lazy(KeySequence, Map, DefaultFun) ->
+    map_functions:maps_get_lazy(KeySequence, Map, DefaultFun).
+
+maps_fallthrough_get(Key, Maps) when is_list(Maps) ->
+    map_functions:maps_fallthrough_get(Key, Maps).
+
+maps_fallthrough_get(Key, Maps, Default) when is_list(Maps) ->
+    map_functions:maps_fallthrough_get(Key, Maps, Default).
