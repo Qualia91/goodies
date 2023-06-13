@@ -47,9 +47,12 @@
 
 %% Map Functions
 -export([
+    maps_get_lazy/2,
     maps_get_lazy/3,
     maps_fallthrough_get/3,
-    maps_fallthrough_get/2
+    maps_fallthrough_get/2,
+    maps_get_seq/2,
+    maps_get_seq/3
 ]).
 
 %%%=============================================================================
@@ -128,6 +131,9 @@ dir(X) ->
 %%% Map Functions
 %%%=============================================================================
 
+maps_get_lazy(KeySequence, Map) ->
+    map_functions:maps_get_lazy(KeySequence, Map).
+
 maps_get_lazy(KeySequence, Map, DefaultFun) ->
     map_functions:maps_get_lazy(KeySequence, Map, DefaultFun).
 
@@ -136,3 +142,9 @@ maps_fallthrough_get(Key, Maps) when is_list(Maps) ->
 
 maps_fallthrough_get(Key, Maps, Default) when is_list(Maps) ->
     map_functions:maps_fallthrough_get(Key, Maps, Default).
+
+maps_get_seq(Key, Maps) when is_list(Maps) ->
+    map_functions:maps_get_seq(Key, Maps).
+
+maps_get_seq(Key, Maps, Default) when is_list(Maps) ->
+    map_functions:maps_get_seq(Key, Maps, Default).
