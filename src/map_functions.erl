@@ -15,7 +15,10 @@
     maps_fallthrough_get/3,
     maps_fallthrough_get/2,
     maps_get_seq/2,
-    maps_get_seq/3
+    maps_get_seq/3,
+    merge_maps/1,
+    deep_merge_maps/1,
+    deep_merge_maps/2
 ]).
 
 maps_get_lazy([], Map, DefaultFun) when is_function(DefaultFun) ->
@@ -76,6 +79,48 @@ maps_get_seq([Key | Rest], Map) ->
         Value -> maps_get_seq(Rest, Value)
     end.
 
+merge_maps(Maps) ->
+    lists:foldl(
+        fun(NextMap, AccMap) ->
+            maps:merge(AccMap, NextMap)
+        end,
+        #{},
+        Maps
+    ).
+
+deep_merge_maps(Maps) ->
+    lists:foldl(
+        fun(NextMap, AccMap) ->
+            deep_merge_maps(AccMap, NextMap)
+        end,
+        #{},
+        Maps
+    ).
+
+deep_merge_maps(Map1, Map2) ->
+    Keys1 = maps:keys(Map1),
+    Keys2 = maps:keys(Map2),
+    Keys = lists:append(Keys1, Keys2),
+    lists:foldl(
+        fun
+            (Key, AccMap) ->
+                Value1 = maps:get(Key, Map1, not_found),
+                Value2 = maps:get(Key, Map2, not_found),
+                case {Value1, Value2} of
+                    {not_found, _} ->
+                        AccMap#{Key => Value2};
+                    {_, not_found} ->
+                        AccMap#{Key => Value1};
+                    {Value1, Value2} when is_map(Value1) andalso is_map(Value2) ->
+                        AccMap#{Key => deep_merge_maps(Value1, Value2)};
+                    {Value1, _} ->
+                        AccMap#{Key => Value1}
+                end
+        end,
+        #{},
+        Keys             
+    ).
+
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
 
@@ -133,5 +178,82 @@ maps_get_seq_test() ->
     ?assertEqual(h, maps_get_seq([c, f, g], Map)),
     ?assertError({badkey,x}, maps_get_seq([x], Map)),
     ?assertError({badkey,a}, maps_get_seq([c, f, a], Map)).
+
+merge_maps_test() ->
+    
+    MapA = #{
+        a => b,
+        c => #{
+            d => e
+        }
+    },
+
+    MapB = #{
+        a => b,
+        c => #{
+            f => g
+        }
+    },
+
+    ExpectedMap = #{
+        a => b,
+        c => #{
+            f => g
+        }
+    },
+
+    ?assertEqual(ExpectedMap, merge_maps([MapA, MapB])).
+
+deep_merge_maps_test() ->
+
+    MapA = #{
+        a => b,
+        c => #{
+            d => e
+        }
+    },
+
+    MapB = #{
+        a => b,
+        c => #{
+            f => g
+        }
+    },
+
+    ExpectedMap = #{
+        a => b,
+        c => #{
+            d => e,
+            f => g
+        }
+    },
+
+    ?assertEqual(ExpectedMap, deep_merge_maps(MapA, MapB)).
+
+deep_merge_maps_list_test() ->
+    
+    MapA = #{
+        a => b,
+        c => #{
+            d => e
+        }
+    },
+
+    MapB = #{
+        a => b,
+        c => #{
+            f => g
+        }
+    },
+
+    ExpectedMap = #{
+        a => b,
+        c => #{
+            d => e,
+            f => g
+        }
+    },
+
+    ?assertEqual(ExpectedMap, deep_merge_maps([MapA, MapB])).
 
 -endif.
