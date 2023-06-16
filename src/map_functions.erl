@@ -18,7 +18,9 @@
     maps_get_seq/3,
     merge_maps/1,
     deep_merge_maps/1,
-    deep_merge_maps/2
+    deep_merge_maps/2,
+    maps_fallthrough_get_seq/2,
+    maps_fallthrough_get_seq/3
 ]).
 
 maps_get_lazy([], Map, DefaultFun) when is_function(DefaultFun) ->
@@ -120,6 +122,26 @@ deep_merge_maps(Map1, Map2) ->
         #{},
         Keys             
     ).
+
+maps_fallthrough_get_seq(_Key, [], Default) ->
+    Default;
+maps_fallthrough_get_seq(Keys, [NextMap | MapsSequence], Default) ->
+    case maps_get_seq(Keys, NextMap, not_found) of
+        not_found ->
+            maps_fallthrough_get_seq(Keys, MapsSequence, Default);
+        Value ->
+            Value
+    end.
+
+maps_fallthrough_get_seq(Keys, []) ->
+    error({badkeys, Keys});
+maps_fallthrough_get_seq(Keys, [NextMap | MapsSequence]) ->
+    case maps_get_seq(Keys, NextMap, not_found) of
+        not_found ->
+            maps_fallthrough_get_seq(Keys, MapsSequence);
+        Value ->
+            Value
+    end.
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
@@ -255,5 +277,32 @@ deep_merge_maps_list_test() ->
     },
 
     ?assertEqual(ExpectedMap, deep_merge_maps([MapA, MapB])).
+
+maps_fallthrough_get_seq_test() ->
+    Map1 = #{
+        a => b,
+        c => #{
+            d => e,
+            f => #{
+                g => h
+            }
+        }
+    },
+    Map2 = #{
+        c => #{
+            f => #{
+                i => y
+            }
+        }
+    },
+
+    ?assertEqual(b, maps_fallthrough_get_seq([a], [Map1, Map2], x)),
+    ?assertEqual(h, maps_fallthrough_get_seq([c, f, g], [Map1, Map2], x)),
+    ?assertEqual(x, maps_fallthrough_get_seq([c, f, a], [Map1, Map2], x)),
+    ?assertEqual(y, maps_fallthrough_get_seq([c, f, i], [Map1, Map2], x)),
+    ?assertEqual(b, maps_fallthrough_get_seq([a], [Map1, Map2])),
+    ?assertEqual(y, maps_fallthrough_get_seq([c, f, i], [Map1, Map2])),
+    ?assertError({badkeys, [x]}, maps_fallthrough_get_seq([x], [Map1, Map2])),
+    ?assertError({badkeys, [c, f, a]}, maps_fallthrough_get_seq([c, f, a], [Map1, Map2])).
 
 -endif.

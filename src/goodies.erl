@@ -55,7 +55,9 @@
     maps_get_seq/3,
     merge_maps/1,
     deep_merge_maps/1,
-    deep_merge_maps/2
+    deep_merge_maps/2,
+    maps_fallthrough_get_seq/2,
+    maps_fallthrough_get_seq/3
 ]).
 
 %%%=============================================================================
@@ -160,3 +162,9 @@ deep_merge_maps(Maps) when is_list(Maps) ->
 
 deep_merge_maps(MapA, MapB) when is_map(MapA) andalso is_map(MapB) ->
     map_functions:deep_merge_maps(MapA, MapB).
+
+maps_fallthrough_get_seq(Keys, Maps) when is_list(Keys) andalso is_map(Maps) ->
+    map_functions:maps_fallthrough_get_seq(Keys, Maps).
+
+maps_fallthrough_get_seq(Keys, Maps, Default) when is_list(Keys) andalso is_map(Maps) ->
+    map_functions:maps_fallthrough_get_seq(Keys, Maps, Default).
